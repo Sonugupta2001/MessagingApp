@@ -1,5 +1,4 @@
-const db = require('../database/db');
-
+const db = require('../db_connection.js');
 const loginHandler = (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
