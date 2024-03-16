@@ -1,20 +1,32 @@
-const signupHandler = async (req, res) => {
+const mysql = require('mysql2/promise');
+
+const signupHandler = async (req, res, next) => {
     const username = req.body.username;
     const password = req.body.password;
     const email = req.body.email;
     const phone = req.body.phone;
 
+    const connection = await mysql.createConnection({
+        host: 'localhost',
+        user: 'root',
+        password: 'Sonu@2001',
+        database: 'chat'
+    });
+
+
     try{
         // save the user data to the database
-        db.query(`INSERT INTO users (username, password, email, phone) VALUES ('${username}', '${password}', '${email}', '${phone}')`, (err, result) => {
-            if (err) throw err;
-            res.send('Signup Successful');
-        });
+        const query = `INSERT INTO users (username, password, email, phone) VALUES (?, ?, ?, ?)`;
+        await connection.query(query, [username, password, email, phone]);
+        console.log('User data saved to the database');
     }
     
     catch(error){
         console.log(error);
     }
+
+    await connection.end();
+    next();
 }
 
 module.exports = signupHandler;

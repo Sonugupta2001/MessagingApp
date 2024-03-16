@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'unsafe-inline';">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
     <title>Signup</title>
     <style>
-        /* BEGIN: Same design as login.html */
         body {
             background-color: #f2f2f2;
             font-family: Arial, sans-serif;
@@ -70,19 +70,66 @@
             cursor: pointer;
             padding: 10px 20px;
         }
-        /* END: Same design as login.html */
     </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('btn1').addEventListener('click', async () => {
+                var username = document.getElementById('usrname').value;
+                var password = document.getElementById('password').value;
+                var confirm_password = document.getElementById('confirm_password').value;
+                var email = document.getElementById('email').value;
+                var phone = document.getElementById('phone').value;
+
+                if (password !== confirm_password) {
+                    alert('Password and Confirm Password do not match');
+                    return;
+                }
+
+                await fetch('http://localhost:3000/signupPage', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password,
+                        email: email,
+                        phone: phone
+                    })
+                }).then((response) => {
+                    console.log(response);
+                    if(response.status == 'success') {
+                        alert('Signup successful');
+                    } else {
+                        alert('Signup failed');
+                    }
+                });
+
+                /* // this further is not running as expected
+                .then(response => response.json()).then(() => {
+                    if(response.status == 'success') {
+                        alert('Signup successful');
+                    } else {
+                        alert('Signup failed');
+                    }
+                });
+                */
+                // window.location.href = 'http://localhost:3000/loginPage';
+            });
+        });
+    </script>
 </head>
 <body>
     <div>
-        <a href="http://localhost:3000/"><button class = 'home_button'>Home</button></a>
+        <a href="http://localhost:3000/"><button class='home_button'>Home</button></a>
     </div>
     <div class="container">
         <h1>Signup</h1>
-        <form method="post">
+        <form>
             <div class="form-group">
                 <label for="username">Username</label>
-                <input type="text" id="username" name="username" placeholder="Enter your username" required>
+                <input type="text" id="usrname" name="username" placeholder="Enter your username" required>
             </div>
             <div class="form-group">
                 <label for="password">Password</label>
@@ -101,7 +148,7 @@
                 <input type="text" id="phone" name="phone" placeholder="Enter your phone number" required>
             </div>
             <div class="form-group">
-                <button type="submit">Signup</button>
+                <button id='btn1'>Signup</button>
             </div>
         </form>
         <div class="form-group link">
