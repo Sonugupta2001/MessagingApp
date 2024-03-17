@@ -88,12 +88,25 @@
                         password: password
                     })
                 })
-                .then(response => response.text())
-                .then((html) => {
-                    document.open();
-                    document.write(html);
-                    document.close();
-                });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        fetch('http://localhost:3000/chatPage', {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                        .then(response => response.text())
+                        .then(data => {
+                            document.open();
+                            document.write(data);
+                            document.close();
+                        });
+                    } else {
+                        alert('Invalid username or password');
+                    }
+                })
             });
         });
     </script>

@@ -1,18 +1,12 @@
-const mysql = require('mysql2/promise');
+const db = require('../db_connection.js');
 
 const signupHandler = async (req, res, next) => {
     const username = req.body.username;
     const password = req.body.password;
     const email = req.body.email;
     const phone = req.body.phone;
-
-    const connection = await mysql.createConnection({
-        host: 'localhost',
-        user: 'root',
-        password: 'Sonu@2001',
-        database: 'chat'
-    });
-
+    
+    const connection = await db();
 
     try{
         // save the user data to the database

@@ -86,7 +86,7 @@
                     return;
                 }
 
-                await fetch('http://localhost:3000/signupPage', {
+                fetch('http://localhost:3000/signupPage', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -97,13 +97,18 @@
                         email: email,
                         phone: phone
                     })
-                }).then((response) => {
+                })
+                .then(response => response.json())
+                .then((response) => {
                     console.log(response);
                     if(response.status == 'success') {
-                        alert('Signup successful');
+                        alert('SignUp successful \n click OK to redirect to login page');
                     } else {
                         alert('Signup failed');
                     }
+                })
+                .then(() => {
+                    window.location.href = 'http://localhost:3000/loginPage';
                 });
 
                 /* // this further is not running as expected
@@ -126,7 +131,7 @@
     </div>
     <div class="container">
         <h1>Signup</h1>
-        <form>
+        <form method="post">
             <div class="form-group">
                 <label for="username">Username</label>
                 <input type="text" id="usrname" name="username" placeholder="Enter your username" required>

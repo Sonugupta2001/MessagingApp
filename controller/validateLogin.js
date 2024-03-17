@@ -1,15 +1,10 @@
-const mysql = require('mysql2/promise');
+const db = require('../db_connection.js');
 
 const validateLogin = async (req, res, next) => {
     const username = req.body.username;
     const password = req.body.password;
 
-    const connection = await mysql.createConnection({
-        host: 'localhost',
-        user: 'root',
-        password: 'Sonu@2001',
-        database: 'chat'
-    });
+    const connection = await db();
 
     try {
         // check if the user exists in the database
