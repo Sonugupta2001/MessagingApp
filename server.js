@@ -30,8 +30,6 @@ app.get('/signupPage', (req, res) => {
 
 // route to handle signup
 app.post('/signupPage', signupHandler, (req, res) => {
-    // res.send('signup successful');
-    // res.sendFile('./resources/login.html', { root: __dirname });
     res.json({status: 'success', message: 'signup successful'});
 });
 
@@ -40,9 +38,6 @@ app.post('/login', validateLogin, (req, res) => {
     const sessionId = uuid();
     session[sessionId] = req.body.username;
     res.set('Set-Cookie', `session=${sessionId}`);
-
-    // res.send('login successful');
-    // res.sendFile('./resources/chatPage.html', { root: __dirname });
     res.json({status: 'success', message: 'login successful'});
 });
 
@@ -52,8 +47,6 @@ app.get('/chatPage', (req, res) => {
     
     if (session[sessionId]) {
         res.sendFile('./resources/chatPage.html', { root: __dirname });
-    } else {
-        res.status(401).send('Unauthorized');
     }
 });
 
@@ -71,10 +64,8 @@ app.get('/logout', (req, res) => {
     const sessionId = req.headers.cookie.split('=')[1];
     delete session[sessionId];
     res.clearCookie('session');
-
     res.sendFile('./resources/index.html', { root: __dirname });
 });
-
 
 
 
