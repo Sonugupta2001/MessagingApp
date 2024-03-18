@@ -91,6 +91,58 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'success') {
+                        fetch('http://localhost:3000/chatPage')
+                        .then(response => response.text())
+                        .then(data => {
+                            document.open();
+                            document.write(data);
+                            document.close();
+                        });
+                    } else {
+                        alert('Invalid username or password');
+                    }
+                })
+            });
+        });
+        
+        /*
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('btn2').addEventListener('click', async function(e) {
+                e.preventDefault();
+                var username = document.getElementById('username').value;
+                var password = document.getElementById('password').value;
+
+                await fetch('http://localhost:3000/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        var socket = new WebSocket('ws://localhost:8080');
+
+                        socket.onopen = function(event) {
+                            console.log('WebSocket connection established');
+                        };
+
+                        socket.onmessage = function(event) {
+                            // Parse the received JSON message
+                            var message = JSON.parse(event.data);
+                            // Add the message to the chat page
+                            addMessageToChat(message);
+                        };
+
+                        socket.onclose = function(event) {
+                            console.log('WebSocket connection closed');
+                        };
+
+                        // Fetch and display the chat page
                         fetch('http://localhost:3000/chatPage', {
                             method: 'GET',
                             headers: {
@@ -106,9 +158,35 @@
                     } else {
                         alert('Invalid username or password');
                     }
-                })
+                });
             });
         });
+
+        
+
+        // Function to add a message to the chat page
+        function addMessageToChat(message) {
+            // Create a new <div> element to hold the message
+            var messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+
+            // Create <p> elements for the message content and sender
+            var contentParagraph = document.createElement('p');
+            contentParagraph.textContent = message.content;
+
+            var senderParagraph = document.createElement('p');
+            senderParagraph.textContent = 'From: ' + message.sender;
+
+            // Append the <p> elements to the message <div>
+            messageDiv.appendChild(contentParagraph);
+            messageDiv.appendChild(senderParagraph);
+
+            // Append the message <div> to the chat container
+            var chatContainer = document.getElementById('chat-container');
+            chatContainer.appendChild(messageDiv);
+        }
+        */
+
     </script>
 </head>
 <body>

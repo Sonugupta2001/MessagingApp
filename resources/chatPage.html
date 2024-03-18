@@ -83,6 +83,45 @@
                 });
             });
         });
+    </script>
+
+    <script>
+        // get the initial chats from the server
+        fetch('http://localhost:3000/chats')
+        .then(response => response.json())
+        .then(chats => {
+            console.log('chats:', chats);
+            const messages = document.getElementById('messages');
+            chats.forEach(chat => {
+                console.log('chat:', chat);
+                messages.innerHTML += `<p>${chat.text}</p>`;
+            });
+        });
+    </script>
+
+    <script>
+        // Create a new WebSocket connection
+        const ws = new WebSocket('ws://localhost:8080');
+
+        // When the connection is open,
+        ws.addEventListener('open', () => {
+            // Listen for messages from the server and append them to the DOM
+            ws.addEventListener('message', (event) => {
+                const messages = document.getElementById('messages');
+                messages.innerHTML += `<p>${event.data}</p>`;
+            });
+
+            // When the send button is clicked, send the message to the server
+            // and also append it to the DOM 
+            document.getElementById('send').addEventListener('click', () => {
+                const message = document.getElementById('message').value;
+                ws.send(message);
+                document.getElementById('message').value = '';
+
+                const messages = document.getElementById('messages');
+                messages.innerHTML += `<p>${message}</p>`;
+            });
+        });
     </script>    
 </head>
 <body>
@@ -92,8 +131,8 @@
    </div>
    <br>
     <div class="container">
-        <div class="form-group">
-            <label for="messages"></label>
+        <div id="messages">
+            <p>Messages will appear here</p>
         </div>
         <div class="form-group">
             <label for="message">Message</label>
