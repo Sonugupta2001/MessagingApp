@@ -1,54 +1,65 @@
 const WebSocket = require('ws');
 const db = require('../db_connection.js');
 
+// Create a WebSocket server using the existing HTTP server
+function setupWebSocket(server, session) {
+    const wss = new WebSocket.Server({ server });
 
-// Create a WebSocket server
-const wss = new WebSocket.Server({ port: 8080 });
+    wss.on('connection', (ws, req) => {
+        console.log('New client connected');
+        
+        // Extract session ID from cookies
+        const sessionId = req.headers.cookie?.split('=')[1];
+        const username = session[sessionId];
 
-// start the websocket server
-wss.on('connection', (ws) => {
-    console.log('New client connected');
-    // receive the message from the client and save it to the database
-    ws.on('message', async (message) => {
-        console.log('received: %s', message);
+        if (!username) {
+            ws.close();
+            return;
+        }
 
-        // create a connection to the database
-        const connection = await db();
+        ws.on('message', async (message) => {
+            try {
+                console.log('Received: %s', message);
 
-        // select the database 'messages' to which the message will be saved
-        await connection.query('USE messages');
-        // save the message to the database, with table name 'message' to the column 'text'
-        const query1 = 'INSERT INTO message (text) VALUES (?)'
-        await connection.query(query1, [message]);
-        // fetch all messages from the database with the table name 'message'
-        const query2 = 'SELECT * FROM message';
-        const [result] = await connection.query(query2);
+                // Parse the incoming message
+                const data = JSON.parse(message);
 
-        // close the connection to the database
-        await connection.end();
+                // Create a connection to the database
+                const connection = await db();
 
-        /*
-        // send the messages to all connected clients
-        wss.clients.forEach((client) => {
-            if (client.readyState === WebSocket.OPEN) {
-                client.send(JSON.stringify(result));
+                // Save the message to the database
+                const [user] = await connection.query('SELECT id FROM users WHERE username = ?', [username]);
+                if (user.length > 0) {
+                    await connection.query('INSERT INTO messages (user_id, text) VALUES (?, ?)', [user[0].id, data.text]);
+                }
+
+                // Broadcast the message to all connected clients
+                const processedMessage = {
+                    username,
+                    text: data.text,
+                    created_at: new Date().toISOString()
+                };
+
+                wss.clients.forEach(client => {
+                    if (client.readyState === WebSocket.OPEN) {
+                        client.send(JSON.stringify(processedMessage));
+                    }
+                });
+            } catch (error) {
+                console.error('Error handling message:', error);
             }
         });
-        */
+
+        ws.on('error', (error) => {
+            console.error('WebSocket error:', error);
+        });
+
+        ws.on('close', () => {
+            console.log('Client disconnected');
+        });
     });
-});
 
-/*
-// broadcast the message to all connected clients
-wss.broadcast = (data) => {
-    wss.clients.forEach((client) => {
-        if (client.readyState === ws.OPEN) {
-            client.send(data);
-        }
-    });
-};
-*/
+    return wss;
+}
 
-
-// export this module
-module.exports = wss;
+module.exports = setupWebSocket;

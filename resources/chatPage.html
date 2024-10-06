@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Chat Room</title>
     <style>
         body {
             background-color: #f2f2f2;
@@ -20,7 +20,6 @@
         .top h1 {
             margin: 0;
         }
-        
         .top button {
             padding: 10px;
             background-color: #575859;
@@ -50,7 +49,7 @@
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
-            box-sizing: border-box; /* Added */
+            box-sizing: border-box;
             position: relative;
         }
         .form-group button {
@@ -69,6 +68,20 @@
         .form-group button:hover {
             background-color: #171515;
         }
+        .message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #e9e9e9;
+        }
+        .message .username {
+            font-weight: bold;
+            color: #333;
+        }
+        .message .timestamp {
+            font-size: 0.8em;
+            color: #777;
+        }
     </style>
 
     <script>
@@ -82,44 +95,62 @@
                     document.close();
                 });
             });
-        });
-    </script>
 
-    <script>
-        // get the initial chats from the server
+            // Create a new WebSocket connection using the same port as the server
+            const ws = new WebSocket(`ws://${window.location.host}`);
+
+            // When the connection is open,
+            ws.addEventListener('open', () => {
+                console.log('WebSocket connection opened');
+
+                // Listen for messages from the server and append them to the DOM
+                ws.addEventListener('message', (event) => {
+                    const messages = document.getElementById('messages');
+                    const data = JSON.parse(event.data);
+                    const messageElement = document.createElement('div');
+                    messageElement.classList.add('message');
+                    messageElement.innerHTML = `
+                        <div class="username">${data.username}</div>
+                        <div class="timestamp">${new Date(data.created_at).toLocaleString()}</div>
+                        <p>${data.text}</p>
+                    `;
+                    messages.appendChild(messageElement);
+                });
+
+                // When the send button is clicked, send the message to the server
+                document.getElementById('send').addEventListener('click', () => {
+                    console.log('Send button clicked');
+                    const message = document.getElementById('message').value;
+                    if (message.trim() !== '') {
+                        const data = { text: message }; // Only send the text, server will handle username
+                        ws.send(JSON.stringify(data));
+                        document.getElementById('message').value = '';
+                    } else {
+                        console.log('Message is empty, not sending');
+                    }
+                });
+            });
+
+            ws.addEventListener('error', (error) => {
+                console.error('WebSocket error:', error);
+            });
+        });
+
+        // Fetch the initial chats from the server
         fetch('http://localhost:3000/chats')
         .then(response => response.json())
         .then(chats => {
-            console.log('chats:', chats);
             const messages = document.getElementById('messages');
+            messages.innerHTML = ''; // Clear initial message
             chats.forEach(chat => {
-                console.log('chat:', chat);
-                messages.innerHTML += `<p>${chat.text}</p>`;
-            });
-        });
-    </script>
-
-    <script>
-        // Create a new WebSocket connection
-        const ws = new WebSocket('ws://localhost:8080');
-
-        // When the connection is open,
-        ws.addEventListener('open', () => {
-            // Listen for messages from the server and append them to the DOM
-            ws.addEventListener('message', (event) => {
-                const messages = document.getElementById('messages');
-                messages.innerHTML += `<p>${event.data}</p>`;
-            });
-
-            // When the send button is clicked, send the message to the server
-            // and also append it to the DOM 
-            document.getElementById('send').addEventListener('click', () => {
-                const message = document.getElementById('message').value;
-                ws.send(message);
-                document.getElementById('message').value = '';
-
-                const messages = document.getElementById('messages');
-                messages.innerHTML += `<p>${message}</p>`;
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('message');
+                messageElement.innerHTML = `
+                    <div class="username">${chat.username}</div>
+                    <div class="timestamp">${new Date(chat.created_at).toLocaleString()}</div>
+                    <p>${chat.text}</p>
+                `;
+                messages.appendChild(messageElement);
             });
         });
     </script>    
@@ -127,9 +158,9 @@
 <body>
     <div class="top">
         <h1>Chat Room</h1>
-        <button id ='logout'>Logout</button>
-   </div>
-   <br>
+        <button id='logout'>Logout</button>
+    </div>
+    <br>
     <div class="container">
         <div id="messages">
             <p>Messages will appear here</p>
