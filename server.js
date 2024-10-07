@@ -31,7 +31,7 @@ app.get('/signupPage', (req, res) => {
 
 // Route to handle signup
 app.post('/signupPage', signupHandler, (req, res) => {
-    res.json({ status: 'success', message: 'signup successful' });
+    res.send({ status: 'success', message: 'signup successful' });
 });
 
 // Route to validate login
@@ -91,7 +91,8 @@ app.get('/chatPage', (req, res) => {
             await connection.query(createMessagesTableQuery);
             console.log("Table 'messages' created");
         }
-    } catch (error) {
+    }
+    catch (error) {
         console.error("Error during database initialization:", error);
     }
 })();
@@ -107,7 +108,8 @@ app.get('/chats', async (req, res) => {
         `;
         const [result] = await connection.query(query);
         res.json(result);
-    } catch (error) {
+    }
+    catch (error) {
         console.error("Error fetching chats:", error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
@@ -127,6 +129,4 @@ app.get('/logout', (req, res) => {
 const server = app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
-
-// Use the same server for WebSocket
-setupWebSocket(server, session);
+setupWebSocket(server, session); // Use the same server for WebSocket
