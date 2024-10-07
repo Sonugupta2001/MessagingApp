@@ -6,10 +6,11 @@ const validateLogin = require('./controller/validateLogin.js');
 const signupHandler = require('./controller/signupHandler.js');
 const WebSocket = require('ws');
 const setupWebSocket = require('./controller/webSocket.js');
+const checkSession = require('./controller/checkSession.js');
+const session = require('./controller/session.js');
 
 const app = express();
 const port = 3000;
-const session = {};
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -97,8 +98,9 @@ app.get('/chatPage', (req, res) => {
     }
 })();
 
-// Route to serve initial messages
-app.get('/chats', async (req, res) => {
+
+// Route to serve initial messages with session check
+app.get('/chats', checkSession, async (req, res) => {
     try {
         const connection = await db();
         const query = `

@@ -100,7 +100,6 @@
                 })
                 .then(response => response.json())
                 .then((response) => {
-                    console.log(response);
                     if(response.status == 'success') {
                         alert('SignUp successful \n click OK to redirect to login page');
                     } else {
@@ -110,21 +109,11 @@
                 .then(() => {
                     window.location.href = 'http://localhost:3000/loginPage';
                 });
-
-                /* // this further is not running as expected
-                .then(response => response.json()).then(() => {
-                    if(response.status == 'success') {
-                        alert('Signup successful');
-                    } else {
-                        alert('Signup failed');
-                    }
-                });
-                */
-                // window.location.href = 'http://localhost:3000/loginPage';
             });
         });
     </script>
 </head>
+
 <body>
     <div>
         <a href="http://localhost:3000/"><button class='home_button'>Home</button></a>
